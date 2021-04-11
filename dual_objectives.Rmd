@@ -1,0 +1,1202 @@
+---
+title: "Attaining the Double bottom line: An Evaluation Using Africa's Microfinance data"
+author: "John Karuitha & Kalu Ojah"
+date: "`r format(Sys.Date(), '%A, %B %d, %Y')`"
+always_allow_html: true
+header-includes:
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1,T2A]{fontenc}
+- \usepackage{amsmath}
+mainfont: garamond
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+  prettydoc::html_pretty:
+    theme: hpstr
+  word_document: default
+  html_document:
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+    number_sections: yes
+    theme: paper
+    highlight: haddock
+bibliography: citation.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.height = 9, fig.width = 14, out.width = '8.8in', fig.align = "center")
+
+library(tidyverse)
+library(dtplyr)
+library(plm)
+library(pglm)
+library(gmnl)
+library(ggthemes)
+library(GGally)
+library(skimr)
+library(prettydoc)
+library(gridExtra)
+library(psych)
+library(stargazer)
+library(corrplot)
+library(excelR)
+library(bookdown)
+library(rmarkdown)
+library(gghalves)
+library(ggalt)  
+library(ggrepel)  # for annotations
+library(viridis)  # for nice colors
+library(broom)  # for cleaning up models
+library(treemapify)  # for making area graphs
+library(wesanderson)  # for nice colors
+library(janitor)
+library(readxl)
+library(magrittr)
+library(mice)
+library(patchwork)
+library(Rchoice)
+library(gplots)
+library(margins)
+library(lme4)
+library(kableExtra)
+library(caret)
+library(nnet)
+library(pROC)
+library(ConfusionTableR)
+library(gtable)
+library(gmodels)
+
+#########################################
+options(digits = 4)
+options(knitr.kable.NA = "-")
+theme_set(ggthemes::theme_clean())
+#########################################
+```
+
+\newpage
+
+# Abstract
+
+> This article uses data from the World Bank to examine how microfinance institutions (MFIs) in Africa fare in pursuing the double bottom line - meeting financial and social objectives. We capture social performance using the percent of female borrowers whole operational self-sufficiency proxies financial perfromance. It also looks into the factors associated with the capacity of MFIs to achieve the double bottom line. The results show that most MFIs in Africa do attain the dual objectives, at 35.88% compared to 14.76% who fail in both missions. However, rural banks and NGOs are more likely to achieve the dual objectives compared to banks, NBFIs and credit unions. Age, size, capital markets development, institutional quality, legal tradition, and legal status are the significant determinants of how an MFI fares in the attainment of joint financial and social objectives. The results remain robust after removing outliers. 
+
+
+# Background
+
+
+In the early stages Microfinance Institutions (MFIs) set out to reach out to the financially excluded people with little emphasis on making profits. However, the rise of neo-liberalism has seen an increasing number of MFIs also pursuing a financial return. The argument is that financially sustainable MFIs could better serve the financially excluded without over-reliance on volatile donor funds and uncertain state subsidies [@garmaise2013cheap; @d2017aid; @armendariz2013subsidy; @d2013unsubsidized]. Consequently, most modern MFIs globally are hybrid firms that have a dual objective of reaching out to the financially excluded while striving for financial sustainability [@d2017ngos]. Like most hybrid firms, MFIs face a challenge in striking a balance between the pursuit of profit and the outreach to the poor, their chief social mission [@jia2016commercialization; @d2013unsubsidized], a phenomenon referred to as mission drift [@mersland2010microfinance]. 
+
+While some researchers posit that it is possible to profitably offer financial services to the poor, financially excluded individuals [@kodongo2013individual], others hold the opposite view [@mersland2010microfinance]. The opponents argue that offering financial services to poor clients is a high cost, high risk business owing to the high costs of administering tiny loans that afford no economies of scale [@ledgerwood2006transforming]. Similarly, the poor more so in Africa lack collateral, are often located in remote geographic areas, lack financial literacy, and engage in informal economic activity where it is hard to track finances to assess their creditworthiness. It is against this background that most initial MFIs like the Grameen Bank in Bangladesh ran on the welfare model, emphasizing outreach to the poor even at the expense of profitability. To sustain their operations, MFIs following the welfare approach had substantial backing in the form of donor funds and state subsidies [@armendariz2013subsidy]. 
+
+As noted, the rise of neo-liberalism after the cold war led to a paradigm shift towards financial sustainability [@bateman2010doesn]. The shift has accompanied a reduction in the level of donations and subsidies, compelling many MFIs to also strive for financial sustainability [@d2017ngos]. Consequently, unlike mainstream commercial firms, MFIs have a double bottom line- pursue social goals while ensuring financial viability [@ramus2017]. The trend has been the conversion of NGO, welfare MFIs to the commercial, profit-oriented model of microfinance. As noted, many researchers hold differing view points regarding the suitability of MFIs pursuing the dual objectives. Some researchers argue that pursuing profits is detrimental to the social mandate of reaching the unbanked due to the possibility of "mission drift" where MFIs pursue profits to the detriment of their social mandate. If MFIs drift from their mission, then they risk their legitimacy that allows them favorable legal framework from the state and goodwill from stakeholders [@market2018global]. Other researchers are of the opinion that financial sustainability makes MFIs better serve the excluded. @mersland2010microfinance conducted some empirical analysis and concluded that the pursuit of profits by MFIs leads to a lower level of outreach, referred to as "mission drift". On the contrary, other researchers claim that financially sustainable MFIs reach more financially excluded people, a phenomenon dubbed "mission expansion" [@mersland2010microfinance].
+
+In this article, we pursue two issues. First, we explore the levels of financial and social performance of MFIs in Africa. Secondly, we examine the factors behind the level of joint financial and social performance of MFIs in Africa. We capture financial performance using the operational self-sufficiency, OSS ^[OSS is the ratio of operating revenue and expenses on funding, loan loss provisions, and operations [@market2018global]], while the percent of female borrowers proxies social performance. The literature shows that the majority of the financially excluded are women and rural dwellers in Africa ^[We did not include MIX data on lending to rural dwellers as it had a large proportion of missing values]. Specifically, the study takes MFIs with an OSS of at least one to be financially sustainable. Likewise, MFIs that have at least 50% of female borrowers have succeeded socially in reaching out to the financially excluded. Following @chattopadhyay2017applicability, we develop a matrix to capture the extent to which MFIs achieve the dual objectives shown in Table 1 below. 
+
+The article contributes to the existing literature in two main ways. First, the research documents the extent of financial and social performance of MFIs in Africa, contributing to the debate on mission drift versus mission expansion. Secondly and critically, while much research examines the consequences of the transformation of MFIs, few delve into the factors that drive the success or failure in the dual missions as this paper does. Instead, much of the research examines the effects of the conversion on the financial sustainability and social missions with each outcome examined in isolation. The other strand of research examines the trade-offs between financial and social performance of MFIs without delving into the drivers of the extent of the trade-offs. Hence, the research contributes to the existing literature by examining the determinants of the achievement of twin objectives. While much of the research has dwelt on the trade-offs or synergies between the two schools, little of it investigates why some MFIs would differ in the extent they achieve the dual objectives. @quayes2019probability is the closest work to our contribution. In that study, they examine the probability of an MFI achieving financial sustainability. The presumption is that financial sustainability is a proxy for social outreach, meaning that the researchers lean towards the financial systems approach to microfinance. The researchers conclude that probability of financial sustainability has a positive effect on depth of outreach, breadth of outreach, and outreach to women. The researchers do not examine the financial and social objectives together as we do in this study. 
+
+The classification in Table 1 shows four categories of MFIs based on the extent to which they achieve both financial and social goals. In class 1, the MFIs have failed both socially and financially. MFIs in this class risk losing legitimacy, fail to attract donations, subsidies, and being loss-making ultimately collapse. There is little literature that envisions a scenario where an MFI fails in the twin objectives reflecting the expectations that an MFI should at least exhibit positive social influence. Following our classification, Figure 1 shows that a substantial number of MFIs falls into the category that fails in both objectives, the causes of which we adress in this article.
+
+In class 2, the MFIs succeed socially in reaching out to the unbanked but fail in financial sustainability. The welfare approach (NGO-Model) subscribes to this approach. Although, some NGOs do turn profits this class of MFIs are a prime candidate for donations and subsidies and serve to illustrate, as welfarists do, that financial sustainability of MFIs is not compatible with social goals. However, it is possible that better financial management could allow this class of MFIs to improve their financial sustainability without trading off with social goals. The financial sustainability school argues that it is possible to push these MFIs to financial sustainability without losing sight of their social mandate. 
+
+In category three, the MFIs succeed financially but fail in the social mission. This category contains MFIs that are subject to mission drift, a position held by the welfare school that brands profitability and social outreach mutually exclusive. The MFIs in this category risk their legitimacy but could survive as they operate a commercial model like mainstream commercial banks. Most cooperatives, NBFIs, and commercial banks in our dataset fall into this category, calling to question the viability of coexistence of MFIs the profit-oriented approach to microfinance and the need to reach out to the financially excluded. NGOs form a small proportion of this group showing their relevance in the microfinance. Finally, there are MFIs that succeed both financially and socially, which is a desirable. This category points to MFIs from which mission expansion could arise/ This class presennts an ideal scenario for the win-win approach to microfinance that argues for the possibility of pursuing both targets. This class also serves the financial sustainability school well, although its viability is controversial.
+
+The study fits within the agency theory, where the entry of private capital into microfinance is bound to raise a conflict between the provision of appropriate and affordable financial services to the financially excluded and pursuing profits. While equity and debt-holders may favor financial inclusion, maximizing returns on their investments comes first, unless it is a case of blended finance where MFIs may use private capital do social good without overemphasis on profitability. Even where agency conflicts adversely affect provision of financial services to the poor, it is hard for MFIs to keep off the financial sustainability push. The institutional theory sheds light here where institutional environment has a greater influence on the adoption of institutional structures than market pressures. In this respect, pressures from donor agencies may still cause more MFIs to convert to the commercial model even where evidence shows that the conversion may be detrimental to the social goal of availing financial services to the financially excluded. 
+
+There exists MFIs that serve different segments of the society. For instance, cooperatives serve a limited geographic range, targeting people with a common bond like employment. Rural banks also serve limited geographic areas in remote rural locations. Commercial banks and NBFIs serve relatively better off but still poor people not served by mainstream intermediaries. Consequently, the argument by @morduch1999microfinance and @morduch2000microfinance argues that we should allow a broad range of MFIs to exist to serve different market segments. Supporting this point, @morduch2019challenges argues that if indeed there was no market failure in the credit market that leaves out a segment of the population unbanked, then NGOs would not exist as commercial banks and other MFIs would already have filled the gap. It follows therefore, that the call to do away with NGOs does not augur well for the financially excluded. The argument by () calls to question the validity and relevance of the debate on the pros and cons of the transformation of microfinance institutions across the globe. What is critical is to evaluate factors relevant for MFIs to achieve their financial and especially social goals as a basis for crafting policy support. Moreover, when the management of MFIs would better adjust their strategies when aware of the issues that hinder or facilitate the achievement of the twin objectives.
+
+The rest of the research proceeds as follows. In the next section, we summarise the results of the study followed by a description of the econometric model. We then discuss the results of the regression and then conclude. 
+
+
+```{r}
+tribble(~ ` `, ~ ` `, ~ `Achieves_Financial_Goals?`, ~ `Achieves_Financial_Goals?`,
+        "", "", "YES", "NO",
+        "Achieves_Social_Goals?", "YES", "Class 4 (SS)", "Class 2 (FS)",
+        "Achieves_Social_Goals?", "NO", "Class 3 (SF)", "Class 1 (FF)") %>% 
+  
+  kableExtra::kbl(., caption = "Classification Matrix: Joint Financial and Social Performance of MFIs", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = FALSE) %>% 
+  
+  footnote(general = "Adapted from Chattopadhyay, Manojit, and Subrata Kumar Mitra (2017)",
+           
+  general_title = "Source: ", 
+  
+  number = c("In labelling the classes, we start with financial sustainability followed by social performance.", "The letters F and S stand for Fails (F) and Succeeds (S), respectively.", "For instance, FS means the MFI fails (F) financially but succeeds (S) socially."), 
+  
+  number_title = "Note")
+```
+
+
+
+The rest of the study proceeds as follows; 
+
+
+
+# Summary of Results
+Overall, MFIs in Africa achieve both financial goals more than they fail in both objectives at 35.88% and 14.76%, respectively. 25.55% of MFIs succeed financially but fail socially by not reaching out adequately to the financially excluded. This result is indicative of mission drift. Another 23.80% fail financially but fare well in their social mandate of reaching the financially excluded. Broken down further, 48.59% of NGOs and 52.17% of rural banks attain both financial and social goals against 7.34%  and 0.72%, respectively that fail in both. The proportion of banks, NBFIs, and credit unions that succeed both financially and socially is 45.72%, 36.87%, and 17.73%. Those that fail in both objectives are 6.3%, 13.51%, and 27.61%, respectively. NGOs have the lowest proportion of MFIs that experience mission drift by succeeding financially while failing socially at 7.66%. Credit unions on the other hand have the second highest instance of mission drift at 40.43% after rural banks at 43.48%. 
+
+The regression results show that the significant factors in determining the extent achieving both objectives are age, size, capital markets development, institutional quality, legal tradition, and legal status. Specifically, mature MFIs are less prone to mission drift given they are more likely to fail both financially and socially than succeed in one objective while failing in the other. Larger MFIs, on the other hand, are more likely to succeed financially and fail socially than they are to fail in both objectives. Similarly, large MFIs are more likely to succeed in both objectives than to fail. The results are indicative of larger MFIs being more prone to mission drift. A higher level of capital markets development and governance corresponds to a higher chance of failing in both objectives, probably due to low demand for microfinance in countries with well developed mainstream financial systems. Similarly, MFIs in legal traditions other than common law are more likely to fail in both objectives. The result probably connotes weak legal and infrastructural support that suppresses development of mainstream and alternative financial systems like microfinance. Finally, the legal status output shows that NGOs are less likely to succeed financially while failing socially. However, NGOs are more likely than other legal forms to fail socially while succeeding financially and to succeed in both objectives. Commercial forms of MFIs are more prone to mission drift. 
+
+# The Model
+The article uses the multinomial logit model, given that our dependent variable is discrete and error terms may not be normally distributed [@cramer2002origins]. In the model, NGOs still take a zero code, with commercial banks, NBFIs, credit unions, and Rural Banks taking one, two, three, and four, respectively. The next section lays out and describes the models, variables, and data sources. 
+
+## The Model, Variables Description and Data Sources
+We run a multinomial logit model on a panel dataset of 705 MFIs in Africa. The multinomial logit model is an extension of the logit model, and hence we start by describing the logit model. Assuming the error term $\epsilon$ follows a logistic distribution [@czepiel2002maximum], we have,
+
+\begin{equation}
+y_{it} = log(\frac{p_{it}}{(1-p_{it})} ) = \alpha + x_{it} + \varepsilon_{it}
+\end{equation}
+
+where,
+
+\begin{equation}
+p_{it}  =  \frac{1}{1 +  e^{- z_{it} } } 
+\end{equation}
+
+and
+
+\begin{equation}
+1 + p_{it}  =  \frac{1}{1 +  e^{z_{it} } }
+\end{equation}
+
+for $z_{it} = f(x_{it})$
+
+In the model, $y_{it}$ is the current legal status of the MFI, the dependent variable. The dependent variable is a dummy with NGOs, the base outcome (coded zero), and other legal traditions take a code of one. The symbol $x_{it}$ represents a vector of independent variables- age, size, capital market development, legal tradition, GDP growth rate, and institutional quality. Additionally, we include year dummies to cater to the trends towards commercialisation. 
+
+The multinomial logit model extends the binary logit model to more than two unordered levels (discrete choices). The data at hand meets the requirements for running a multinomial logit model as the dependent variable (the legal status of each MFI) has one outcome for each case. Also, the independent variables do not faultlessly predict the dependent variable [@petrucci2009primer]. Suppose we have a dependent variable $y$ consisting of $K$ choices for $K>=2$. Further, let the independent variables be $x_1, x_2,………. x_n$, then we can specify the multinomial logit model as follows. 
+
+\begin{equation}
+log(\frac{prob(k/X)}{prob(K/X)}) =   \beta_{0}^{k}  x_{0}  + \beta_{1}^{k}  x_{1} +  \cdots + \beta_{p}^{k}  x_{p}
+\end{equation}
+
+for $k = 1 \cdots K-1$
+
+$y$ is the dependent variable, in this case, one of NGO, commercial bank, NBFI, credit union or rural bank.
+
+$x$ is a vector of independent variables.
+
+If $K>2$, then we have a multinomial logit with $K-1$ set of equations. Where $K=2$, the model is the binary logit model denoted in equation one (1) where we have one equation. Note that in this case, we have arbitrarily assigned the last category (K) as the reference. Any other group can serve as a reference and hence not be part of the equations set. 
+
+One of the significant drawbacks of the multinomial logit is the violation of the assumption of the independence of irrelevant alternatives (IIA). @cheng2007testing ) illustrate this assumption using the blue bus- red bus example. If the choice between car transport and a red bus, and given that the probability of choosing a bus is $0.8$, and $0.2$ for a car, then the bus's odds over car transport is 4. Suppose we introduce a third alternative, the blue bus. If the probabilities of choosing a red bus, blue bus, and car transport are $0.6$, $0.25$, $0.15$, respectively, the assumption holds since the odds of selecting a red bus over a car are still $4$. If the odds are different from $4$, then the model violates the IIA, and the multinomial model is not fit for the data. In our case, we plausibly see the assumption holding because the legal status of an individual MFI is independent of the legal status of other MFIs. Table 1 (next page) describes the variables in detail. 
+
+
+```{r}
+## legal traditions 
+### Common law countries in Africa
+common <- tibble(country = c("Botswana", "Gambia, The", "Ghana", "Kenya", "Lesotho", "Liberia", "Malawi", "Namibia", "Nigeria", "Sierra Leone", "South Africa", "South Sudan", "Sudan", "Eswatini", "Tanzania", "Uganda", "Zambia", "Zimbabwe"), trad = c(rep("common", 18)))
+
+### Civil law countries in Africa
+civil <- tibble(country = c("Algeria", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo, Rep.", "Cote d'Ivoire", "Gabon", "Guinea", "Madagascar", "Mali", "Mauritania", "Morocco", "Niger", "Senegal", "Togo", "Tunisia"), trad = c(rep("civil", 19)))
+
+### Other legal traditions in Africa
+others <- tibble(country = c("Equatorial Guinea", "Angola", "Burundi", "Cape Verde", "Congo, Dem. Rep.", "Egypt, Arab Republic of", "Ethiopia", "Eritrea", "Guinea-Bissau", "Mozambique", "Rwanda"), trad = c(rep("others", 11)))
+
+###Putting them all together
+legal <- rbind(common, civil, others)
+```
+
+```{r}
+# Bond market data - private and public bond market capitalization to GDP
+bonds <- read_excel("bonds_oluoch.xlsx") %>% 
+  
+  janitor::clean_names()
+
+```
+
+```{r}
+# Add the financial development index to the dataset
+## Countries not part of Africa
+mideast <- c("Bahrain", "Iran, Islamic Rep.", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Malta", "Oman", "Qatar", "Saudi Arabia", "Syrian Arab Republic", "United Arab Emirates", "West Bank and Gaza", "Yemen, Rep.")
+
+## Load the financial structure data
+finstr <- read_excel("FinancialStructureDatabase20191018.xlsx", sheet = 4) %>% 
+  
+  ## Select desired variables
+  select(country, region, year, pcrdbgdp, stmktcap, stvaltraded, stturnover, listco_pc) %>% 
+  
+  ### Filter out regions not in Africa or middle east
+  filter(region == "Sub-Saharan Africa" | region == "Middle East & North Africa") %>% 
+  ### Filter out countries in middle east and select year 1999 onwards
+  filter(!country %in% mideast, year >= 1999) %>% 
+  
+## Replace NAs
+          group_by(country) %>% 
+  
+          mutate(pcrdbgdp = replace_na(pcrdbgdp, median(pcrdbgdp, na.rm = TRUE)),
+                 
+                 pcrdbgdp = replace_na(pcrdbgdp, 0),
+                 
+                 stmktcap = replace_na(stmktcap, median(stmktcap, na.rm = TRUE)),
+                 
+                 stmktcap = replace_na(stmktcap, 0)) %>% ungroup() %>% 
+  
+## Join with the bonds data
+  left_join(bonds, by = c("country", "year")) %>% 
+  
+## rename bonds columns 
+  rename(prbonds = outstanding_t_bonds_percent_gdp, 
+         
+         pubonds = outstanding_c_bonds_percent_gdp) %>% 
+  
+  ## Replace NAs in public bond and private bond markets 
+  mutate(pubonds = replace_na(pubonds, 0), 
+         
+         prbonds = replace_na(prbonds, 0)) %>% 
+  
+         ## Rename Ivory Coast
+         mutate(country = if_else(country == "Côte d'Ivoire", "Cote d'Ivoire", 
+                                  
+                                  country))
+
+## View missing data points
+#mice::md.pattern(finstr)
+
+#finstr %>% select(pcrdbgdp, stmktcap) %>% cor(.) %>% 
+  
+  #corrplot(method = "number", type = "lower")
+```
+
+```{r}
+## Read in the dataset 
+my_data <- read_csv("amelia.csv") %>% 
+
+## Region
+mutate(region = if_else(region == "Middle East and North Africa", 
+                        
+                        "North_Africa", region)) %>% 
+
+# Clean the names 
+janitor::clean_names() %>% 
+  
+# Set up factor variables 
+## legal status 
+mutate(currentlegalstatus = factor(currentlegalstatus, 
+                           levels = c("NGO", "Bank", "NBFI", 
+                            "Credit Union/ Cooperative", 
+                            "Rural Bank")), 
+      ## Age
+      age = factor(age, levels = c("New", "Young", "Mature")),
+       
+      ## Region 
+      region = factor(region, levels = c("North_Africa", "Africa"))) %>% 
+  
+      ## Add the financial structure data     
+      left_join(finstr, by = c("country", "year")) %>% 
+  
+      ## Add a binary variable for the legal dummy- NGO vs Others
+      mutate(currentlegaldummy = case_when(currentlegalstatus == "NGO" ~ "NGO",
+                                           
+                                           TRUE ~ "others"),
+      
+        currentlegaldummy = factor(currentlegaldummy, levels = c("NGO", "others")),
+        
+        legal_tradition = factor(legal_tradition, 
+                                 
+                                 levels = c("Common", "Civil", "Other"))) %>% 
+  ## Select required variables 
+  select(mfiid, mfiname, year, country, currentlegaldummy, currentlegalstatus, 
+         
+         percent_of_female_borrowers, operational_self_sufficiency,
+         
+         age, legal_tradition, region.x, asset_structure, 
+         
+         assets, kkm, education, pcrdbgdp, stmktcap, prbonds, 
+         
+         gdp_growth_annual, donations, donations_assets_ratio) %>% 
+  
+          ## Rename region
+         rename(region = region.x) %>% 
+  
+  group_by(country) %>% 
+  
+  mutate(kkm = replace_na(kkm, median(kkm, na.rm = TRUE)),
+         education = replace_na(education, median(education, na.rm = TRUE)),
+         prbonds = replace_na(prbonds, median(prbonds, na.rm = TRUE)),
+         pcrdbgdp = replace_na(pcrdbgdp, median(pcrdbgdp, na.rm = TRUE)),
+         stmktcap = replace_na(stmktcap, median(stmktcap, na.rm = TRUE))) %>% 
+  
+  ungroup() %>% 
+  
+  group_by(mfiid) %>% 
+  
+  mutate(asset_structure = replace_na(asset_structure, median(asset_structure, na.rm = TRUE)), 
+         
+         percent_of_female_borrowers = replace_na(percent_of_female_borrowers, 
+                                                  
+                                                  median(percent_of_female_borrowers, na.rm = TRUE)),
+         
+         operational_self_sufficiency = replace_na(operational_self_sufficiency, 
+                                                   
+                                                   median(operational_self_sufficiency, na.rm = TRUE)),
+         
+         assets = replace_na(assets, median(assets, na.rm = TRUE)),
+         
+         donations = replace_na(donations, median(donations, na.rm = TRUE)),
+         
+         donations_assets_ratio = replace_na(donations_assets_ratio, 
+                                             
+                                  median(donations_assets_ratio, na.rm = TRUE))) %>% 
+  
+  ungroup() %>% 
+  
+  group_by(region) %>% 
+  
+  mutate(education = replace_na(education, median(education, na.rm = TRUE)),
+         
+         kkm = replace_na(kkm, median(kkm, na.rm = TRUE)),
+         
+         gdp_growth_annual = replace_na(gdp_growth_annual, 
+                                        
+         median(gdp_growth_annual, na.rm = TRUE))) %>% 
+  
+  ungroup() %>% 
+  
+  group_by(currentlegalstatus) %>% 
+  
+  mutate(assets = replace_na(assets, median(assets, na.rm = TRUE)), 
+         
+         percent_of_female_borrowers = replace_na(percent_of_female_borrowers, 
+                                                  
+                        median(percent_of_female_borrowers, na.rm = TRUE)),
+         
+         operational_self_sufficiency = replace_na(operational_self_sufficiency, 
+                                                   
+                        median(operational_self_sufficiency, na.rm = TRUE)),
+         
+         donations = replace_na(donations, median(donations, na.rm = TRUE)),
+         
+         donations_assets_ratio = replace_na(donations_assets_ratio, 
+                                             
+                                  median(donations_assets_ratio, na.rm = TRUE))) %>% 
+  
+  ungroup() %>% 
+  
+  mutate(dummy = if_else(currentlegaldummy == "NGO", 0, 1)) %>% 
+  
+  mutate(assets = log(assets + 1),
+         
+         pcrdbgdp = log(pcrdbgdp + 1),
+         
+         stmktcap = log(stmktcap + 1),
+         
+         prbonds = log(prbonds + 1)) %>% 
+  
+  select(-asset_structure) %>% 
+  
+  add_count(mfiid, name = "count") %>% 
+  
+  mutate(currentlegalstatus = fct_recode(currentlegalstatus, Coop = "Credit Union/ Cooperative")) %>% 
+  
+  mutate(finsoc = case_when(operational_self_sufficiency >= 1 & percent_of_female_borrowers > 0.5 ~ "SS",
+                            
+                            operational_self_sufficiency > 1 & percent_of_female_borrowers < 0.5 ~ "SF", 
+                            
+                            operational_self_sufficiency < 1 & percent_of_female_borrowers >= 0.5 ~ "FS",
+                            
+                            TRUE ~ "FF")) %>% 
+  
+mutate(finsoc = factor(finsoc, levels = c("FF", "SF", "FS", "SS"))) %>% 
+  
+## replace negative donations with zero
+mutate(donations = case_when(donations <= 0 ~ 1,
+                             TRUE ~ donations))
+## Write a csv for the data
+my_data %>% write.csv(., "data.csv")
+
+## Visualize missing data
+#md.pattern(data)
+## Amelia::missmap(data)
+
+## MFIs with three (3) or more years of data
+data3 <- my_data %>% 
+  
+  group_by(mfiid) %>% 
+  
+  filter(n() > 3)
+  
+data3 %>% write.csv(., "data3.csv")
+
+## MFIs with three (3) or more years of data
+data5 <- my_data %>% 
+  
+  group_by(mfiid) %>% 
+  
+  filter(n() > 5)  
+  
+data5 %>% write.csv(., "data5.csv")
+```
+
+
+
+## The Model, Variables Description and Data Sources
+The dependent variable is a dummy with four levels that captures how well MFIs achieve both financial and social objectives. The firm-level independent variables are the legal status, age and size of the MFIs. The legal tradition, institutional quality, private credit to GDP, stock market to GDP, and GDP growth rates capture country level macro-factors. 
+
+As illustrated in Table(), we construct the independent variable using the percentage of women borrowers and operational self-sufficiency (OSS). lending to women proxies the social performance of MFIs with the success being where an MFI has a women clients comprising 50% or more of the total borrowers. An OSS of at least one indicates an MFI that is financially sustainable. We then generate four categories starting from MFIs that succeed in both financial and social metrics on one extreme, and those that fail in both on the other. In between are MFIs that succeed in one of the metrics but fail in the other. Apart from the proposition by (), little research has applied this approach to examine the joint financial and social efficiency of MFIs. 
+
+As noted, some legal forms of MFIs restrict the capacity of MFIs to emphasize financial or social goals. NGOs are an extreme case where donors and stakeholders expect that they be more socially-oriented. Their degree of social orientation is the source of legitimacy and justifies continued donor and state support. In Africa, rural banks serve a niche market that is most prone to financial exclusion and hence expected focus on social performance over and above financial performance. Cooperatives on the other hand are member-oriented and may not have room to improve their social outlook unless by recruiting more members. In countries and areas where people suffer financial exclusion, joining a cooperative is mostly out of question given their status which causes them to be financially excluded in the first place. The exception are farmers cooperatives that pool together smallholder farmers to gain scale economies in procurement of inputs and sale of produce. Commmercial banks and NBFIs tend to have more external capital and agency conflicts may arise between managers who want to optimise both financial and social objectives and providers of funds who may chiefly focus on financial returns. An exceptional case is that of blended finance where providers of funds do so with the understanding that achieving social goals is equally critical.  
+
+The age and size of an MFI go together in explaining the firm level factors that drive the achievement of the twin objectives. Mature MFIs tend to be larger (see Figure ()). Following the institutional theory, large, mature MFIs are less likely to succumb to the pressures from donors and other stakeholders to attain financial sustainability [@d2017aid]. Alternatively, larger and more stable MFIs have greater resources to afford offering financial services to the poor without abandoning their social mandate [@] even as donations subside. As () argue, such MFIs could offer financial services to the relatively well-off at market rates which then allows them to cross-subsidize services to the financially excluded. In such a scenario, @mersland2010microfinance argue that the conversion of MFIs to the commercial model is likely to lead to "mission expansion" as opposed to "mission drift". 
+
+The country-level factors address the macro-environment. For example, researchers associate the legal tradition with the development of the financial system [@schnyder2018twenty]. Common law and civil law traditions dominate in Africa with the former exhibiting higher levels of financial development [@la2013law]. People in countries with higher quality of institutional development are more likely to have access to the mainstream financial system [@allen2013resolving; @allen2014african] and hence demand less microfinance services. Likewise, countries with better institutional quality have better developed financial system which lowers demand for microfinance. The level of financial development of a country reflects in the private credit to GDP and stock markets capitalization to GDP. Better developed financial markets imply higher access and use of financial services and hence lower chances of financial exclusion. The result is a lower demand for microfinance resulting in poor financial and social performance by MFIs [@allen2013resolving; @allen2014african]. 
+
+Finally, the GDP growth rate reflects the health of the economy. With more output, people are likely to have higher incomes over time that would make them demand financial services like savings and credit to smooth consumption [@ahlin2011does; @buera2021macroeconomics]. As described in Table (), the data comes from the World Bank. The firms level data is from the MIX market. The country level data is from three chief sources- the World Development Indicators (WDI), the Worldwide Governance Indicators (WGI), and the Global Financial Development Database (GFDD). 
+
+```{r}
+tribble(~ Variable_Description, "1. Current Legal Status: This is the dependent variable. For logit and probit models, we create a dummy with the MFIs following the NGO Model getting a code of zero, and one in the case of non-bank financial institutions (NBFIs), rural banks, and credit unions/ cooperatives. We assign codes of zero to four for the multinomial logit model for NGOs, Banks, NBFIs, Cooperatives and Rural Banks, respectively. The data are available from the Microfinance Information Exchange, MIX (See source on note 1).", "", "2.	Age: The period in which the MFI has been in operation. MFIs fall into one of three groups: new (1-4 years), young (4-8 years), and mature (over 8 years). The data are available from MIX.", "", "3. Legal Tradition (Legal): The indicator is a dummy variable with common law countries coded 0, civil law countries 1, and 2 otherwise as per the classification by Oto-Peralías and Romero-Ávila (2014).", "", "4. Size (Log of Total Assets): We proxy the size of MFI with the natural logarithm of total assets, again using MIX data.", "", "5. Governance/ Institutional Quality (KKM): We take the first principal component of the WGI developed by Daniel Kaufmann, Aart Kraay and Massimo Mastruzzi (KKM) available on the World Bank's Worldwide Governance Indicators, WGI (See source on note 3).", "", "6. Private Credit to GDP: We capture the total amount of credit advanced to the private sector by financial intermediaries as a proxy for capital markets development concerning the banking sector following Ito and Kawai (2018). The data source is the Global Financial Development Database (GFDD) of the World Bank (See note 4).", "", "7. Stock market capitalisation to GDP: We capture the  extent of stock market development using the ratio of stock market capitalisation to GDP to proxy how firms can raise equity capital. Although Africa's equity markets are thin, some relatively large stock markets like South Africa, Kenya, and Ghana exist. The data are from the GFDD.", "", "8. GDP annual growth rate (GDP): This is the year on year growth in output adjusted for inflation and sourced from the World Development Indicators (WDI) (See note 2).", "") %>% 
+  
+  kbl(., caption = "Description of Variables", booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(number = c("MIX Database on www.themix.org and https://datacatalog.worldbank.org/dataset/mix-market", "WDI on https://databank.worldbank.org/source/world-development-indicators.", "WGI/ KKM on https://databank.worldbank.org/source/worldwide-governance-indicators.", "GFDD on https://www.worldbank.org/en/publication/gfdr/data/global-financial-development-database"), 
+           
+           number_title = "Notes",
+    
+           general = "Authors' construction from the literature",
+           
+           general_title = "Source: ")
+  
+  #knitr::kable(caption = "Description of variables")
+```
+
+# Results
+In this section, we explore and describe the data followed by a discussion of the output from the regression analysis.
+
+## Exploratory Data Analysis and Data Visualization
+### Summary Statistics
+Figure 1 and Tables 3 and 4 shows a breakdown of the extent to which MFIs in Africa meet the dual financial and social objectives. Panel A and B  of Figure 1 shows the counts, while panel C and D show the proportions of MFIs and the extent they meet the twin objectives. Tables 3 and 4 show the respective proportions. We base the discussion on Figure 1 panel C and table 4.  The results in Panel C show that cooperatives have the lowest proportion of MFIs succeed both financially and socially at 17.7%. In addition, they have the second lowest proportion (after rural banks with 43.5%) of failing socially and succeeding financially at 40.4%. By contrast, they have the lowest highest chance (after rural banks with 3.6%) of failing financially and succeeding socially at 14.2%. Notably, MFIs have the highest chance of failing to meet both objectives at 27.6%. The results illustrate the nature of cooperatives as geographically limited entities whose sole focus is on members who are able to make savings in order to qualify for loans [@porter1987economic]. Not many of the financially excluded individuals may join cooperatives due to limited incomes and information and their situation in remote geographical locations.
+
+
+
+```{r}
+my_data %>% 
+  
+  count(finsoc, name = "Total") %>% 
+  
+  mutate(`Proportion(%)` = Total*100 / sum(Total)) %>% 
+  
+  rename(Finsoc = finsoc) %>% 
+
+  knitr::kable(caption = "Aggregate Financial and Social Performance by Legal Status of 
+               
+               MFIs in Africa", booktabs = TRUE) %>% 
+  
+  kableExtra::kable_styling(font_size = 8, full_width = TRUE, position = "center") %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ")
+```
+
+
+
+
+```{r}
+# gmodels::CrossTable (my_data$finsoc, my_data$currentlegalstatus, prop.chisq = FALSE)
+
+prop.table(table(my_data$finsoc, my_data$currentlegalstatus), margin = 1) %>% 
+  
+  knitr::kable(caption = "Joint Financial and Social Performance by Legal Status of MFIs in       
+               Africa (rowwise)", booktabs = TRUE) %>% 
+  
+  kableExtra::kable_styling(font_size = 8, full_width = TRUE, position = "center") %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ", 
+  
+  number = c("The horizontal (row) values add up to 100%", "We start with financial sustainability followed by social performance", "For instance, FS means the MFI fails (F) financially but succeeds (S) socially.", "The letters F and S stand for Fail and Succeeds, respectively"), 
+  
+  number_title = "Note")
+```
+
+
+
+We turn to NBFIs. NBFIs have the third highest proportion, after NGOs and comemrcial banks, of MFIs that succeed in meeting the twin objectives at 36.9%. However, they have the second highest chance, after NGOs of failing financially while succeeding socially. Similarly, after NGOs, NBFIs have the second lowest chance of succeeding financially while failing socially at 27.2%. NBFIs also have the second highest chance after cooperatives of failing to meet the twin objectives at 13.5%. Also, NBFIs have the second lowest proportion of MFIs that succeed financially while failing socially at 22.4%. In this respect, NBFIs show some degree of social orientation. NBFIs appear to strike a balance between the extremes of failing in both objectives versus succeeding in both objectives. 
+
+NGOs have the second highest instance of succeeding both financially and socially at 48.6% in the sample data, after rural banks. NGOs also have the highest proportion of MFIs that fail financially while succeeding financially (36.41%). Again, NGOs have the lowest chance of succeeding financially while failing socially at 36.4%. NGOs have the third lowest instance (7.3%) of failing both financially and socially after commercial banks (6.3%) and rural banks (0.7%). The results for NGOs illustrating their leaning towards the welfare school of prioritizing outreach over profitability. These results appear the concerns by the welfare school that the explicit pursuit of profits is incompatible with the extension of financial services to the financially excluded [@d2017ngos]. 
+
+Commercial banks come second after NGOs in the proportion of MFIs that succeed both financially and socially at 45.7%. However, after rural banks and cooperatives, commercial banks have the lowest chance of failing financially while succeeding socially. After rural banks and cooperatives, banks are the third least likely to succeed financially while failing to meet their social objectives. However, banks have the second lowest instance of failing to meet both objectives. lastly, though the sample of rural banks is small, they show the highest likelihood of succeeding both financially and socially and failing to achieve the twin objectives. Rural banks have the least instance of succeeding financially while failing socially, and have no instance of failing to meet both objectives. 
+
+The observations in the visualization appear to validate the concerns by the welfare school of microfinance that, indeed, pursuing a financial return is incompatible with outreach to the financially excluded. Except for NBFIs that seem evenly spread between the different classes, the other commercial MFIs- banks, cooperatives, and rural banks, are biased against social outreach. NGOs show a high degree of social orientation, and are at the top when it comes to achievement of the twin objectives, and come last in the class of MFIs that succeed financially and fail socially. We shall revisit this issue in the regression analysis. Finally, for profit-oriented MFIs like commercial banks, financial performance is a pre-requisite for the achievement of social objectives. The result could be due to the lower proportion of donations and subsidies that for-profit MFIs receive [@d2013unsubsidized] which forces to focus on financial sustainability. Only after they achieve some degree of financial sustainability do they turn their attention to the achievement of social goals. The next section summarises the independent variables. 
+
+### Data visualization
+Figure 2 shows the correlation between the numeric independent variables. The highest correlation is between private credit to GDP and stock market capitalization to GDP at 0.321. Institutional quality and private credit to GDP follow at -0.265. Overall the correlation between independent variables is not high to raise multi-collinearity issues (See the Table () on variance inflation factors, VIF). Further, Figure () shows that smaller MFIs tend to fail financially while the bigger ones succeed. Socially, the smallest MFIs tend to succeed, while larger ones exhibit mixed results. Panel B shows that MFIs in countries with stronger institutional quality and, hence, higher incomes tend to fail socially unlike their counterparts in countries with lower institutional quality. As noted, higher institutional quality lowers demand for microfinance as many people have access to the mainstream financial system. However, MFIs in countries with the weakest institutional quality tend to fail financially while those in jurisdictions with the highest institutional quality succeed. The result show the costs of serving financially excluded markets which make it hard to turn a financial return. It is therefore important to examine the circumstances in individual countries before prescribing or discouraging the conversion of MFIs. In relatively well off countries, the conversion of MFIs could be feasible. In very poor countries where financial exclusion is high, the conversion may fail as MFIs cannot make enough to sustain the extension of financial services to the many financially excluded people. 
+
+As with institutional quality, MFIs in countries with high private credit to GDP which imply better banking sector development and wealth, have a higher chance of failing socially. With financial inclusion, there is low demand for microfinance in these countries. The opposite is true for MFIs in countries with low private sector credit to GDP. The link between financial performance of MFIs and private credit shows mixed results with MFIs in countries with the highest and lowest private credit tending to fail financially. Stock market development shows a trend opposite to that of private credit to GDP, with MFIs in countries with high levels of stock market development tending to succeed socially. The link between the financial performance of MFIs and stock market development is also mixed. The results may indicate the weak linkage between the stock markets and the financial needs of the financially excluded at the base of the income pyramid. Overall, the visualizations shows that the choice of independent variables may be relevant in explaining the degree of joint financial and social performance of MFIs in Africa. 
+
+
+
+```{r, eval=FALSE}
+my_data %>% 
+  
+  dplyr::count(currentlegalstatus, finsoc, name = "Number_of_MFIs") %>% 
+  
+  mutate(Legal_Status = currentlegalstatus) %>% 
+  
+  select(-currentlegalstatus) %>% 
+  
+  relocate(Legal_Status) %>% 
+  
+  arrange(Legal_Status, finsoc) %>% 
+  
+  group_by(Legal_Status) %>% 
+  
+  mutate(Prop_of_MFIs = Number_of_MFIs / sum(Number_of_MFIs) * 100) %>% 
+  
+  select(-Number_of_MFIs) %>% 
+
+  pivot_wider(names_from = finsoc, values_from = Prop_of_MFIs) %>% 
+  
+  kableExtra::kbl(caption = "Summary Statistics for Joint Financial and Social Performance of MFIs in Africa", booktabs = TRUE) %>% 
+  
+  kableExtra::kable_styling(font_size = 8, full_width = TRUE, position = "center") %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ", 
+  
+  number = c("The horizontal (row) values add up to 100%", "We start with financial sustainability followed by social performance", "For instance, FS means the MFI fails (F) financially but succeeds (S) socially.", "The letters F and S stand for Fail and Succeeds, respectively"), 
+  
+  number_title = "Note") %>% 
+  
+  landscape()
+```
+
+
+
+
+
+```{r}
+# gmodels::CrossTable (my_data$finsoc, my_data$currentlegalstatus, prop.chisq = FALSE)
+
+prop.table(table(my_data$finsoc, my_data$currentlegalstatus), margin = 2) %>% 
+  
+  knitr::kable(caption = "Joint Financial and Social Performance by Legal Status of MFIs in Africa (Columnwise)", booktabs = TRUE) %>% 
+  
+  kableExtra::kable_styling(font_size = 8, full_width = TRUE, position = "center") %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ", 
+  
+  number = c("The vertical (column) values add up to 100%", "We start with financial sustainability followed by social performance", "For instance, FS means the MFI fails (F) financially but succeeds (S) socially.", "The letters F and S stand for Fail and Succeeds, respectively"), 
+  
+  number_title = "Note")
+```
+
+
+
+
+\newpage
+\blandscape
+
+```{r, fig.cap = "Financial and Social Performance of MFIs in Africa"}
+
+library(patchwork)
+
+(my_data %>% ggplot(mapping = aes(x = fct_infreq(currentlegalstatus), fill = finsoc)) + 
+  
+  stat_count() + 
+  
+  scale_fill_brewer(palette = 7) + 
+  
+  labs(x = "Financial and Social Perfomance", y = "Count", 
+       
+       title = "Panel A") +
+
+my_data %>% ggplot(mapping = aes(x = fct_infreq(finsoc), fill = currentlegalstatus)) + 
+  
+  stat_count() + 
+  
+  scale_fill_brewer(palette = 4) + 
+  
+  labs(x = "Financial and Social Perfomance", y = "", 
+       
+       title = "Panel B") + 
+  
+  guides(fill=guide_legend(title="Legal Status"))) / 
+           
+(my_data %>% ggplot(mapping = aes(x = fct_infreq(currentlegalstatus), fill = finsoc)) + 
+  
+  geom_bar(position = "fill", show.legend = FALSE) + 
+  
+  scale_fill_brewer(palette = 7) + 
+  
+  labs(x = "Financial and Social Perfomance", y = "Proportion", 
+       
+       title = "Panel C") +
+
+my_data %>% ggplot(mapping = aes(x = fct_infreq(finsoc), fill = currentlegalstatus)) + 
+  
+  geom_bar(position = "fill", show.legend = FALSE) + 
+  
+  scale_fill_brewer(palette = 4) + 
+  
+  labs(x = "Financial and Social Perfomance", y = "", 
+       
+       title = "Panel D") + 
+  
+  guides(fill=guide_legend(title="Legal Status")))
+```
+\elandscape
+
+
+
+```{r}
+median_n <- function(x){median(x, na.rm = TRUE)}
+```
+
+```{r}
+theme_niwot <- function(){
+  theme_bw() +
+    theme(axis.text = element_text(size = 7), 
+          axis.title.x = element_blank(),
+          axis.title.y = element_text(size = 8),
+          axis.line.x = element_line(color="black"), 
+          axis.line.y = element_line(color="black"),
+          panel.border = element_blank(),
+          panel.grid.major.x = element_blank(),                                          
+          panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.y = element_blank(),  
+          plot.margin = unit(c(1, 1, 1, 1), units = , "cm"),
+          plot.title = element_text(size = 10, vjust = 1, hjust = 0),
+          legend.text = element_text(size = 8),          
+          legend.title = element_blank(),                              
+          legend.position = c(0.95, 0.15), 
+          legend.key = element_blank(),
+          legend.background = element_rect(color = "black", 
+                                           fill = "transparent", 
+                                           size = 2, linetype = "blank"))
+}
+```
+
+
+
+```{r}
+###########################################
+#' ggplot Flat Violin
+#' @export
+#' @details Copy-pasted from https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R
+#' somewhat hackish solution to:
+#' https://twitter.com/EamonCaddigan/status/646759751242620928
+#' based mostly on copy/pasting from ggplot2 geom_violin source:
+#' https://github.com/hadley/ggplot2/blob/master/R/geom-violin.r
+#' @examples:
+#' ggplot(diamonds, aes(cut, carat)) +
+#'   geom_flat_violin() +
+#'   coord_flip()
+#' @import ggplot2
+geom_flat_violin <- function(mapping = NULL, data = NULL, stat = "ydensity",
+                             position = "dodge", trim = TRUE, scale = "area",
+                             show.legend = NA, inherit.aes = TRUE, ...) {
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomFlatViolin,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      trim = trim,
+      scale = scale,
+      ...
+    )
+  )
+}
+
+#' @rdname ggplot2-ggproto
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomFlatViolin <-
+  ggproto("GeomFlatViolin", Geom,
+          setup_data = function(data, params) {
+            data$width <- data$width %||%
+              params$width %||% (resolution(data$x, FALSE) * 0.9)
+
+            # ymin, ymax, xmin, and xmax define the bounding rectangle for each group
+            data %>%
+              group_by(group) %>%
+              mutate(ymin = min(y),
+                     ymax = max(y),
+                     xmin = x,
+                     xmax = x + width / 2)
+
+          },
+
+          draw_group = function(data, panel_scales, coord) {
+            # Find the points for the line to go all the way around
+            data <- transform(data, xminv = x,
+                              xmaxv = x + violinwidth * (xmax - x))
+
+            # Make sure it's sorted properly to draw the outline
+            newdata <- rbind(plyr::arrange(transform(data, x = xminv), y),
+                             plyr::arrange(transform(data, x = xmaxv), -y))
+
+            # Close the polygon: set first and last point the same
+            # Needed for coord_polar and such
+            newdata <- rbind(newdata, newdata[1,])
+
+            ggplot2:::ggname("geom_flat_violin", GeomPolygon$draw_panel(newdata, panel_scales, coord))
+          },
+
+          draw_key = draw_key_polygon,
+
+          default_aes = aes(weight = 1, colour = "grey20", fill = "white", size = 0.5,
+                            alpha = NA, linetype = "solid"),
+
+          required_aes = c("x", "y")
+  )
+
+
+"%||%" <- function(a, b) {
+  if (!is.null(a)) a else b
+}
+###########################################################
+```
+
+
+
+```{r}
+# plotting function
+plotter <- function(data, x , y, z, xlabel, ylabel, title){
+  
+  library(tidyverse)
+  library(ggthemes)
+  library(gghalves)
+  library(ggalt)  
+  library(ggrepel)  # for annotations
+  library(viridis)  # for nice colors
+  library(broom)  # for cleaning up models
+  library(treemapify)  # for making area graphs
+  library(wesanderson)  # for nice colors
+  
+  ggplot(data = data, mapping = aes(x = reorder({{x}}, {{y}}, median_n), 
+  y = {{y}}, fill = {{z}})) + 
+  geom_boxplot(width = 0.2, outlier.shape = NA, alpha = 0.8, aes(fill = {{z}})) +
+  geom_half_violin(position = position_nudge(x = 0.2, y = 0), alpha = 0.8) + 
+    geom_point(position = position_jitter(width = 0.15), size = 1, alpha = 0.1) + 
+    scale_y_log10() + labs(y = ylabel, x = xlabel, 
+  title = title) + 
+  theme_niwot() + 
+  theme(legend.position = "none") + 
+  stat_summary(fun = mean, geom = "point", 
+                size = 1, color = "red")}
+
+##################################################
+second_plotter <- function(data, x , y, z, xlabel, ylabel, title){
+
+library(ggalt)  
+library(ggrepel)  # for annotations
+library(viridis)  # for nice colours
+library(broom)  # for cleaning up models
+# devtools::install_github("wilkox/treemapify")
+library(treemapify)  # for making area graphs
+library(wesanderson)  # for nice colours
+
+  ggplot(data = data, 
+           mapping = aes(x = reorder({{x}}, {{y}}, median_n), y = {{y}}, fill = {{z}})) +
+    
+    # The half violins
+    geom_flat_violin(position = position_nudge(x = 0.2, y = 0), alpha = 0.8) +
+    
+    # The points
+    geom_point(aes(y = {{y}}, color = {{x}}), 
+    
+    position = position_jitter(width = 0.15), size = 1, alpha = 0.1) +
+    
+    # The boxplots
+    geom_boxplot(width = 0.2, outlier.shape = NA, alpha = 0.8) +
+    
+    # \n adds a new line which creates some space between the axis and axis title
+    labs(x = xlabel, y = ylabel, title = title) +
+    
+    # Removing legends
+    guides(fill = FALSE, color = FALSE) +
+    
+    # Setting the limits of the y axis
+    #scale_y_continuous(limits = c(0, 1.2)) +
+    
+    # Picking nicer colours
+    scale_fill_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C", "#FFFF80FF")) +
+    
+    scale_colour_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C", "#FFFF80FF")) +
+    
+    theme_niwot() + scale_y_log10()
+}
+```
+
+
+
+
+\blandscape
+```{r, fig.cap="Correlation between Independent Variables", fig.width = 12, fig.height = 8}
+my_data %>% 
+  
+  dplyr::select(where(is.numeric)) %>% 
+  
+  dplyr::select(-mfiid, -year, -dummy, -count, -education, -prbonds, -donations, -donations_assets_ratio) %>% 
+  
+  GGally::ggpairs(columnLabels = c("%Female", "OSS", "Assets", "KKM", "pcrdbgdp", "stmktcap", "GDP_Growth"))
+```
+
+
+
+```{r, fig.width = 8, fig.height = 5}
+(second_plotter(data = my_data, x = fct_reorder(finsoc, assets, median), y = assets, z = finsoc, xlabel = "Financial and Social Performance", ylabel = "Assets (size of MFI)", title = "Size and Perfomance of MFIs in Africa") +
+
+second_plotter(data = my_data, x = fct_reorder(finsoc, kkm, median), y = kkm, z = finsoc, xlabel = "Financial and Social Performance", ylabel = "Governance (Institutional Quality)", title = "Perfomance of MFIs in Africa and Governance")) / 
+  
+(second_plotter(data = my_data, x = fct_reorder(finsoc, pcrdbgdp, median), y = pcrdbgdp, z = finsoc, xlabel = "Financial and Social Performance", ylabel = "Private Credit to GDP", title = "Perfomance of MFIs in Africa and Private Credit to GDP") + 
+   
+second_plotter(data = my_data, x = fct_reorder(finsoc, stmktcap, median), y = stmktcap, z = finsoc, xlabel = "Financial and Social Performance", ylabel = "Stock Market Development", title = "Perfomance of MFIs in Africa and stock market development"))
+
+```
+\elandscape
+
+
+
+
+\blandscape
+```{r}
+## Distribution of the independent variable
+table(my_data$finsoc)
+
+my_data %>% 
+  
+  dplyr::select(where(is.numeric), -mfiid, -year, -dummy, -count, -education, -prbonds) %>% 
+  
+  skim_without_charts() %>% 
+  
+  select(-n_missing, -complete_rate, -skim_type) %>% 
+  
+  rename(Variable = skim_variable, Mean = numeric.mean, 
+         
+         SD = numeric.sd, Min = numeric.p0, Q1 = numeric.p25,
+         
+         Median = numeric.p50, Q3 = numeric.p75, Max = numeric.p100) %>% 
+  
+  kableExtra::kbl(., caption = "Summary statistics for continous numeric variables", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ")
+```
+
+\elandscape
+
+
+
+## Results of the Regression Model
+The results of the regression model are in tables 7 through 9. Given that we have an unbalanced dataset, we run the regressions separately for the entire data (Table 7), for MFIs with three or more years of data (Table 8), and for those with 5 or more years of data (Table 9). Overall, the significant drivers of the achievement of the dual objectives are age, size, stock market capitalization to GDP, private credit to GDP, institutional quality, legal tradition, and MFI legal status. The GDP growth rate is not a significant driver of the extent which MFIs meet both financial and social objectives. The latter two regressions form a robustness check. We discuss each of the variables basing on Table 7 but referring to Tables 8 and 9 for comparison. 
+
+### Age
+\noindent Age is a categorical variable. New MFIs (that have existed for 0 - 4 years) are the base outcome. The results show that relative to new MFIs, young MFIs (4 -8 years) are less likely to succeed financially and fail socially than failing to meet the dual objectives. Similarly, compared to new MFIs, young MFIs are less likely to fail financially and succeed in meeting their social goals than they are to fail to meet the twin objectives. However, young MFIs they are more likely than new MFIs to meet both their financial and social goals than to fail in the dual mission. The results imply that young MFIs are more prone to both financial and social failure compared to new MFIs. Put another way, compared to new MFIs, young MFIs are more likely to fail to achieve both financial and social goals than they are to achieve social goals and failing financially and vice versa, and succeeding both financially and socially. However, these relationships are not significant.
+
+```{r}
+prop.table(table(my_data$age, my_data$finsoc), 1) %>% 
+  
+  kableExtra::kbl(., caption = "MFI Age and Achievement of Dual Objectives", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ")
+```
+
+
+On the other hand, the results show that relative to new MFIs, mature MFIs are significantly less likely to succeed financially and fail socially than they are to fail in meeting the dual objectives. Similarly mature MFIs are significantly less likely than new MFIs to fail financially while meeting their social goals than they are to meet both their goals. Both these results are significant. Also, the regression results show that relative to new MFIs, mature MFIs are less likely to meet the dual objectives than they are to fail in their twin mission. The latter result is not significant. These results illustrate that mature MFIs are more prone to failing in their twin mission than new MFIs. The results imply that as MFIs mature, they are less prone to mission drift. The observation hods given that in the regression older MFIs are more likely to fail to achieve both financial and social objectives than they are to succeed in one and fail in the other or succeed in both financial and social goals, compared to new MFIs.
+
+Indeed, Table () shows a higher proportion of mature MFIs that fail to attain both objectives compared to new and young MFIs. The table shows that a higher proportion of mature MFIs fail in both objectives. Likewise, a higher proportion of mature MFIs tend to succeed financially while failing socially, although, in the regression, the result is not significant. Financial success coupled with social failure is detrimental to financial inclusion and shows that mature MFIs may be less prone to mission drift when they convert to the commercial model. However, a higher proportion of mature MFIs fail financially while succeeding socially which is also an indicator of mission drift - one that shows that mature MFIs may place social performance over social goals. Lastly, although the result is not significant in the regression, the table shows that mature MFIs that succeed financially also tend to succeed socially. ^[Note that the interpretation of Table () differs from the interpretation of the regression. The regression examines the relative likelihood. For instance, how likely are mature MFIs, as compared to new MFIs, to succeed in both objectives than fail in both objectives. The Table gives absolute values.]
+
+As noted, the results imply that mature MFIs are less prone to mission drift where success in one dimension (say, financial) accompanies failure in the other dimension (say social), and vice versa. However, when mature MFIs succeed financially they also tend to fare equally well socially. The result could hold given that mature MFIs have a larger asset base to draw from makes them able to reach out to the financially excluded with less dependence on donations and subsidies. The larger asset base also means that larger MFIs have established their presence through marketing campaigns and use of technology such that they have a bigger client base in wider geographic locations. In this case, it is much easier for mature MFIs to attain their social goals, given their greater market share that would allow them to operate even in remote areas with or without donors and state support. Newer MFIs on the other hand, have to legitimize their activities by ensuring that they meet their social goals. hence, even though mature MFIs receive more donations on aggregate, the relative share of donations is lower than that newer MFIs.   
+
+### Size
+As noted age and size move together. Mature MFIs have more assets on average than younger MFIs. The regression out put shows that larger MFIs are significantly more likely to succeed financially while failing socially than they are to fail in both objectives. Specifically, if the asset base (the proxy for size) of an MFI rises by one unit, then the MFI is 1.241102 times more likely to fall into the group that succeeds financially and fails socially than to be in the group that fails to meet the dual objectives. On the contrary, larger MFIs are marginally less likely to fail in meeting their financial goals while succeeding socially. Again, a one unit increase in size results in 0.9685066 likelihood of falling into the group of MFIs that fail financially while succeeding socially. With the odds almost equal to one, it appears size is not as important in determining whether or not an MFI fails financially and succeeds socially. Indeed, this outcome is not statistically significant. However, larger MFIs are significantly more likely to meet their dual objectives than to fail in both. In this case, a one unit increase in MFI size corresponds to 1.192438 odds of achieving both objectives relative to failing in both objectives ^[We exponentiate the coefficients to get the odds. Odds greater than one indicate greater likelihood. Odds less than one indicate less likelihood, while one indicates equal likelihood.]. 
+
+The results highlight that size is a critical ingredient in determining whether or not MFIs meet their dual objectives. Larger MFIs have a greater likelihood of achieving both objectives and meeting their financial goals while failing socially. This means that while size is an important factor in meeting social goals, it is a factor of greater importance in meeting financial objectives. The results also imply that larger MFIs that meet their financial objectives are better placed to also meet their social goals. Hence, meeting financial goals is a pre-requisite for meeting social goals for larger MFIs relative to smaller, younger MFIs. Larger MFIs use their asset base to generate financial resources that they the use to expand outreach to the financially excluded, consistent with the "mission expansion" [@mersland2010microfinance]. relatively smaller MFIs, on the other hand, are not as reliant on making financial returns to realize their financial goals, making them more reliant on donations and subsidies. In the absence of subsidies 
+
+### Capital markets developement
+This section covers both the stock market development and the debt market development. Across all classes, the regression shows that MFIs located in countries with better stock market development are less likely to meet the dual objectives than failing in both objectives. Going by the coefficients, a unit increase in stock market capitalisation results in `r exp(-0.147)` times as likely to meet the twin objectives than to fail in both. Similarly, MFIs located in these countries are less likely to meet their financial goals and fail socially. In this case, a unit increase in stock market development corresponds with a `r exp(-0.154)` odds of being in the category of MFIs that succeed financially while failing socially than in the class that fails to meet both objectives. Likewise, higher stock market development connotes a higher probability of an MFI suceeding financially while failing in their social mandate than failing in both objectives. Here, a unit increase in stock market capitalisation corresponds to `r exp(-0.195)` odds. 
+
+Debt market development whose proxy is the ratio of private credit to GDP follows a similar pattern. A higher level of debt market development corresponds to higher odds of succeeding financially while failing socially as opposed to failing in both objectives. The result is not significant though. However, a higher level of debt market development lowers the odds of an MFI failing financially and succeeding socially. Also, higher debt market development lowers the odds of an MFI succeeding in both objectives versus failing in both. The corresponding odds are `r exp(-0.254)` and `r exp(-0.147)` respectively. 
+
+Indeed in countries where stock markets are well developed, the mainstream financial system, including the debt market, is also likely well established meaning that people have access to finance. Research shows that a well developed debt market is a precursor to the development of a stock market [@nguyen2012determinants; @tsaurai2018determinants]. Under these conditions, then the demand for microfinance is low, meaning that it is hard for MFIs to realize any of the objectives. The few MFIs that exist in these conditions are more likely to serve a small, underprivileged class, meaning that the possibility of achieving their financial goals are minimal. They, however, almost always meet their social goals. 
+
+### Governance/ Institutional quality (KKM)
+Institutional quality goes together with better financial sector development []. The regressions results show that a unit increase in the quality of institutions corresponds with higher odds of succeeding financially while failing socially. The odds are `r exp(0.115)`. With odds of `r exp(-0.08)`, when institutional goes up by a unit, there is a lower chance of an MFI failing financially and succeeding socially that it is to fail in both objectives. These two results are significant. Finally, a unit increase in institutional quality lowers the chances of an MFI meeting both objectives compared to failing in both objectives with  odd of `r exp(0.03)`. The result is, however, insignificant. As is the case for financial sector development, the populace in countries with better quality institutions are more likely to have access to the mainstream financial system making the achievement of social goals harder for MFIs given the low demand for microfinance [@butkiewicz2006institutional]. Given a low demand for microfinance, it is also harder for MFIs to succeed financially. 
+
+### Legal Tradition
+The common law legal tradition is the base outcome for this variable. The result show that relative to MFIs in common law countries, MFIs in civil law countries are less likely to succeed financially while failing socially than fail in both objectives. The odds are `r exp(-1.290)`. Similarly, MFIs in civil law countries are less likely than MFIs in common law countries to fail financially while succeeding socially than they are to fail in both objectives with odds of `r exp(-0.952)`. Also, MFIs operating in civil law countries are less likely than those in common law countries to succeed in both objectives than to fail in both objectives. The odds are `r exp(-1.21)`. The odds are strikingly low, showing the high likelihood of MFIs in civil law countries to fail in both financial and social goals compared to those in common law countries. 
+
+For MFIs in other legal traditions (neither common law nor civil law), the results are similar to those for civil law countries. The odds are lower (at `r exp(-1)`) that an MFI in a country with other legal traditions, compared to common law countries, will succeed financially and fail socially as opposed to failing in both objectives. The odds for failing financially while succeeding socially and succeeding in both objectives are `r exp(-0.628)` and `r exp(-0.93)`, respectively. Table () confirms that indeed, MFIs in civil law countries and other legal traditions are more likely to fail to meet both objectives compared to those in common law countries. Also, MFIs in common law countries have the highest instance of succeeding socially. Given that civil law and other legal tradition countries have a lower level of capital markets development compared to common law countries [@schnyder2018twenty; @kaidi2019financial], we would expect that MFIs find it easier to meet social goals in civil law countries. These results could point to poor reception of financial services in these countries [@la2013law]. Additionally, lack of a supportive legal framework, inadequate financial and physical infrastructure could also make it difficult for MFIs to meet their social mandate even when the demand for microfinance is potentially high.
+
+
+```{r}
+prop.table(table(my_data$legal_tradition, my_data$finsoc), 1) %>% 
+  
+  kableExtra::kbl(., caption = "Legal Traditions and Achievement of Dual Objectives", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction from MIX data",
+           
+  general_title = "Source: ")
+```
+
+
+
+### MFI legal status
+For legal status, the NGO model is the base outcome. Compared to NGOs, commercial banks are more likely to succeed financially while failing socially than they are to fail in both objectives. The results shows that the commercial banking model of microfinance is likely to put profits before outreach to the financially excluded. Similarly, commercial banks less likely than NGOs to fail financially while succeeding socially than they are to fail in both objectives. The result may highlight that for commercial banks to succeed socially, they have to be financially self-sustainable, without which they tend to fail in both objectives. Likewise, relative to NGOs, commercial banks are less likely to achieve both financial and social goals than they are to fail in both goals. Again this shows the importance of financial success in determining the attainment of social goals by commercial banks as compared to NGOs. 
+
+The other MFI legal forms- NBFIs, cooperatives, and rural banks show a pattern similar to that of commercial banks. Overall, the results confirm the results of exploratory data analysis that shows that NGOs are less prone to social failure compared to the commercial forms of MFIs. The result confirms the concerns by the welfare school that the transformation of MFIs is likely to cause mission drift [@d2017ngos]. Also, it implies that for commercial MFIs to prioritize social goals, they ought first to realize financial success which may be hard to come by unless with some form of support from the state and donors, at least in the initial stages of transformation. 
+
+
+\newpage
+
+```{r, results = 'hide'}
+full <- my_data %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) 
+
+full3 <- my_data %>% group_by(mfiid) %>% filter(n() >= 3) %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .)
+
+full5 <- my_data %>% group_by(mfiid) %>% filter(n() >= 5) %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) 
+```
+
+
+
+```{r, results = "asis"}
+stargazer(full, title = "Regression Results - Multinomial Logit Model- Full Data", font.size = "footnotesize", header = FALSE, omit = "^factor.", add.lines = list(c("Year Effects", "Yes", "Yes", "Yes"), c("Data", "Full", "Full", "Full")))
+```
+
+
+\newpage
+```{r, results = "asis"}
+stargazer(full3, title = "Regression Results - Multinomial Logit Model- >= 3 Years of Data", font.size = "footnotesize", header = FALSE, omit = "^factor.", add.lines = list(c("Year Effects", "Yes", "Yes", "Yes"), c("Data", ">= 3 Year", ">= 3 years", ">= 3 years")))
+```
+
+
+\newpage
+
+```{r, results = 'asis'}
+stargazer(full5, title = "Regression Results - Multinomial Logit Model, >= 5 Years of Data", font.size = "footnotesize", header = FALSE, omit = "^factor.", add.lines = list(c("Year Effects", "Yes", "Yes", "Yes"), c("Data", ">= 5 years", ">= 5 years", ">= 5 years")))
+```
+
+
+
+\newpage
+
+## Overall Model Fit: Confusion Matrix
+In this section, we use the regression model in Table 9 to generate a confusion matrix that shows how well the model predicts that an MFI will fall into one of the four financial vs social performance classes. The results are in Table 12 and Table 13. In Table 12, while the model has low accuracy and sensitivity, it has substantial level of specificity at about 80%. This means that the model can accurately predict that an MFI will not fall into a given category given that it does not fall into that category. However, the model is not significantly more accurate than guessing the most likely outcome, in this case that an MFI succeeds both financially and socially, with an accuracy of 46.9% against a no-information rate of 52.9%. Table 13 shows that, for instance, the model accurately predicts that 141 MFIs would fail in attaining both financial and social goals. However, `r 141+242+99+224` actually fail to meet both objectives ^[This figure is the row sum of the first row]. This presents a poor prediction accuracy of `r paste(141/(141+242+99+224),"%")`. However, the model does well to predict MFIs that succeed in both objectives, getting it right 1202 instances. In this case, the overall accuracy is high at `r paste(1202/(1202+243+216+55),"%")`. The accuracy for the second (SF) and third categories (FS) are `r paste(506/(90+506+77+549),"%")` and `r paste(396/(63+122+396+557),"%")`, respectively. The model easily picks out MFIs that succeed in both objectives better than it does the other categories. 
+
+63	122	396	557
+
+
+
+
+```{r}
+multinom_predict <- predict(full)
+
+conf_matrix <- confusionMatrix(my_data$finsoc, multinom_predict) 
+
+######## MFI classes
+mfis <- c("FF", "SF", "FS", "FF")
+
+####### Metrics
+Accuracy <- c(rep(0.469, 4))
+
+NoInformationRate <- rep(0.529, 4)
+
+Kappa <- rep(0.243 , 4)
+
+sensitivity <- c(0.4040, 0.466, 0.4859, 0.475)
+
+specificity <- c(0.8725, 0.806, 0.8130, 0.772)
+
+PosPredValue <- c(0.1997, 0.414, 0.3480, 0.700)
+
+NegPredValue <- c(0.9490, 0.837, 0.8850, 0.566)
+
+Prevalence <- c(0.0730, 0.227, 0.1704, 0.529)
+
+DetectionRate <- c(0.0295, 0.106, 0.0828, 0.251)
+
+DetectionPrevalence <- c(0.1476, 0.256, 0.2380, 0.359)
+
+BalancedAccuracy <- c(0.6383, 0.636, 0.6494, 0.623)
+ 
+#####df
+df <- rbind(Accuracy, NoInformationRate, Kappa, sensitivity, specificity, PosPredValue, NegPredValue, Prevalence, DetectionRate, DetectionPrevalence, BalancedAccuracy) %>% 
+  
+  data.frame()
+
+names(df) <- mfis
+
+df %>% 
+  
+  kableExtra::kbl(., caption = "Confusion Matrix and Statistics for the Multinomial Logit Model", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction",
+           
+  general_title = "Source: ",
+  
+  number = "Accuracy > NoInformationRate is significant at 1% confidence level, p = 0.0000",
+  
+  number_title = "Notes: ")
+```
+
+
+
+
+```{r}
+conf_matrix$table %>% 
+  
+  kableExtra::kbl(., caption = "Confusion Matrix Table for the Multinomial Logit Model", 
+      
+  booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction",
+           
+  general_title = "Source: ")
+```
+
+
+
+
+## Regression Diagnostics
+In this section, we do robustness checks on the regression for extreme values, multicollinearity and linearity. Note that we base the checks on the model in table 7 that utlizes the entire dataset.
+
+### Extreme Values
+In the regression model, we winsorize the data by removing the top and bottom 10% and re-run the analysis. The results of the regression are in Table 14 below. Extreme values do not affect the results do not change except for the expected changes in the coefficients.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, warning = FALSE, results = 'hide'}
+######################################
+remove_outliers <- function(x, na.rm = TRUE, ...) {
+  qnt <- quantile(x, probs=c(.10, .90), na.rm = na.rm, ...)
+  H <- 1.5 * IQR(x, na.rm = na.rm)
+  y <- x
+  y[x < (qnt[1] - H)] <- NA
+  y[x > (qnt[2] + H)] <- NA
+  y
+}
+
+### add mfiid, year, age, legal tradition, current legal status & finsoc
+multinom_wins <- my_data %>% select(assets, stmktcap, pcrdbgdp, kkm, gdp_growth_annual, year)
+
+#######################################
+multinom_wins <- sapply(multinom_wins, remove_outliers) %>% 
+  
+  cbind(my_data %>% select(mfiid, year, finsoc, age, legal_tradition, currentlegalstatus)) %>% 
+  
+  relocate(mfiid:currentlegalstatus)
+
+#########################################
+## Regression
+full_wins <- multinom_wins %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) 
+
+```
+
+
+
+
+```{r, results = 'asis'}
+stargazer(full_wins, title = "Regression Results - Multinomial Logit Model, Winsorized Data", font.size = "footnotesize", header = FALSE, omit = "^factor.", add.lines = list(c("Year Effects", "Yes", "Yes", "Yes"), c("Data", "Full Data", "Full Data", "Full Data")))
+```
+
+
+
+### Multicollinearity
+In this section, we check for multi-collinearity among the dependent variables by generating the variance inflation factors (VIFs). In this case, except for year, the mainstream variables do not have exceptional variance inflation. The VIFs are in table 15. However, the inclusion of year effects is vital in the regressions given their panel structure. 
+
+
+
+```{r}
+car::vif(full) %>% 
+  
+  knitr::kable(., caption = "Variance Inflation Factors for Logit Model", 
+      
+      booktabs = TRUE) %>% 
+  
+  kable_paper(full_width = TRUE) %>% 
+  
+  footnote(general = "Authors' construction",
+           
+           general_title = "Source: ")
+```
+
+
+
+## Conclusion
+
+
+
+
+
+## References
+
+
+
+\blandscape
+
+```{r, fig.cap = "Size and Age of Microfinance Institutions in Africa"}
+#table(my_data$age, my_data$assets)
+
+(second_plotter(data = my_data, x = fct_reorder(age, assets, median), y = assets, z = age, xlabel = "Age", ylabel = "Assets (size of MFI)", title = "Age and Size of MFIs in Africa"))/
+
+(second_plotter(data = my_data, x = currentlegalstatus, y = percent_of_female_borrowers, z = currentlegalstatus, title = "Percent of Female Borrowers by MFI Legal Status", xlabel = "Current Legal Status", ylabel = "Percent of Female Borrowers") +
+
+#### Operational Self-sufficiency of MFIs in Africa
+second_plotter(data = my_data, x = currentlegalstatus, y = operational_self_sufficiency, z = currentlegalstatus, title = "Operational Self-sufficiency by MFIs Legal Status", xlabel = "Current Legal Status", ylabel = "Operational Self-sufficiency of MFIs in Africa"))
+
+```
+
+\elandscape
+
+
+
+\newpage
+
+```{r, results = "asis"}
+library(gmnl)
+library(mlogit)
+
+ddd <- my_data %>% 
+  
+  select(mfiid, finsoc, age, assets, stmktcap, pcrdbgdp, kkm, gdp_growth_annual, legal_tradition, currentlegalstatus, year) %>% 
+  
+  mutate(year = factor(year))
+
+long.data <- mlogit.data(ddd, choice = "finsoc", shape = "wide")
+long.data
+
+my_model <- mlogit(finsoc ~ 1| age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + 
+                     
+                     currentlegalstatus + year, data = long.data, reflevel = "FF" )
+
+stargazer(my_model, title = "Regression Results - Multinomial Logit Model- Full Data", 
+          font.size = "footnotesize", header = FALSE, omit = "year.")
+```
+

@@ -1,0 +1,7 @@
+"0","my_data %>% "
+"0","  "
+"0","  dplyr::select(where(is.numeric)) %>% "
+"0","  "
+"0","  dplyr::select(-mfiid, -year, -dummy, -count, -education, -prbonds, -donations, -donations_assets_ratio) %>% "
+"0","  "
+"0","  GGally::ggpairs(columnLabels = c(""%Female"", ""OSS"", ""Assets"", ""KKM"", ""pcrdbgdp"", ""stmktcap"", ""GDP_Growth""))"
