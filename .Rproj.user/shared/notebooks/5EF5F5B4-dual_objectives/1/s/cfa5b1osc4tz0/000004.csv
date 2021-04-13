@@ -1,8 +1,0 @@
-"0","(second_plotter(data = my_data, x = fct_reorder(finsoc, assets, median), y = assets, z = finsoc, xlabel = ""Financial and Social Performance"", ylabel = ""Assets (size of MFI)"", title = ""Size and Perfomance of MFIs in Africa"") +"
-"0",""
-"0","second_plotter(data = my_data, x = fct_reorder(finsoc, kkm, median), y = kkm, z = finsoc, xlabel = ""Financial and Social Performance"", ylabel = ""Governance (Institutional Quality)"", title = ""Perfomance of MFIs in Africa and Governance"")) / "
-"0","  "
-"0","(second_plotter(data = my_data, x = fct_reorder(finsoc, pcrdbgdp, median), y = pcrdbgdp, z = finsoc, xlabel = ""Financial and Social Performance"", ylabel = ""Private Credit to GDP"", title = ""Perfomance of MFIs in Africa and Private Credit to GDP"") + "
-"0","   "
-"0","second_plotter(data = my_data, x = fct_reorder(finsoc, stmktcap, median), y = stmktcap, z = finsoc, xlabel = ""Financial and Social Performance"", ylabel = ""Stock Market Development"", title = ""Perfomance of MFIs in Africa and stock market development""))"
-"0",""

@@ -474,7 +474,7 @@ Figure 1 and Tables 3 and 4 shows a breakdown of the extent to which MFIs in Afr
 
 
 
-```{r}
+```{r, fig.width = 5, fig.height=5, fig.align='center', fig.cap = "Financial and Social Perfomance of MFIs in Africa"}
 my_data %>% 
   
   count(finsoc, name = "Total") %>% 
@@ -483,15 +483,13 @@ my_data %>%
   
   rename(Finsoc = finsoc) %>% 
 
-  knitr::kable(caption = "Aggregate Financial and Social Performance by Legal Status of 
-               
-               MFIs in Africa", booktabs = TRUE) %>% 
+  ggplot(aes(x = fct_reorder(Finsoc, `Proportion(%)`, max) , y = `Proportion(%)`, fill = Finsoc)) + 
   
-  kableExtra::kable_styling(font_size = 8, full_width = TRUE, position = "center") %>% 
+  geom_col() + 
   
-  footnote(general = "Authors' construction from MIX data",
-           
-  general_title = "Source: ")
+  geom_label(aes(label = round(`Proportion(%)`, 2))) + 
+  
+  theme(legend.position = "none")
 ```
 
 
@@ -1179,7 +1177,7 @@ second_plotter(data = my_data, x = currentlegalstatus, y = operational_self_suff
 
 \newpage
 
-```{r, results = "asis"}
+```{r, results = "asis", eval = FALSE}
 library(gmnl)
 library(mlogit)
 
