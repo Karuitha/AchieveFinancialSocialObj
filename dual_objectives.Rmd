@@ -12,12 +12,12 @@ header-includes:
 - \usepackage{amsmath}
 mainfont: garamond
 output:
+  word_document: default
+  prettydoc::html_pretty:
+    theme: hpstr
   pdf_document:
     toc: yes
     toc_depth: 4
-  prettydoc::html_pretty:
-    theme: hpstr
-  word_document: default
   html_document:
     toc: yes
     toc_depth: 4
