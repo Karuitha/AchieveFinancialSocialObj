@@ -12,12 +12,12 @@ header-includes:
 - \usepackage{amsmath}
 mainfont: garamond
 output:
-  word_document: default
-  prettydoc::html_pretty:
-    theme: hpstr
   pdf_document:
     toc: yes
     toc_depth: 4
+  prettydoc::html_pretty:
+    theme: hpstr
+  word_document: default
   html_document:
     toc: yes
     toc_depth: 4
@@ -983,7 +983,7 @@ The other MFI legal forms- NBFIs, cooperatives, and rural banks show a pattern s
 \newpage
 
 ```{r, results = 'hide'}
-full <- my_data %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) 
+full <- my_data %>% multinom(finsoc ~ age + assets + stmktcap + + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) 
 
 full3 <- my_data %>% group_by(mfiid) %>% filter(n() >= 3) %>% multinom(finsoc ~ age + assets + stmktcap + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .)
 
