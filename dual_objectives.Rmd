@@ -1139,12 +1139,12 @@ stargazer(full_wins, title = "Regression Results - Multinomial Logit Model, Wins
 
 
 ### multicollinearity
-This section checks for multi-collinearity among the dependent variables by generating the variance inflation factors (VIFs). In this case, except for the year, the mainstream variables do not have exceptional variance inflation. The VIFs are in table 15. However, the inclusion of year effects is vital in the regressions, given their panel structure. 
+This section checks for multi-collinearity among the dependent variables by generating the variance inflation factors (VIFs). In this case, the mainstream variables do not have exceptional variance inflation. The VIFs are in table 15. However, the inclusion of year effects is vital in the regressions, given their panel structure. 
 
 
 
 ```{r}
-car::vif(full) %>% 
+car::vif(my_data %>% glm(dummy ~ age + assets + stmktcap + + pcrdbgdp + kkm + gdp_growth_annual + legal_tradition + currentlegalstatus + factor(year), data = .) ) %>% 
   
   knitr::kable(., caption = "Variance Inflation Factors for Logit Model", 
       
